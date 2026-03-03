@@ -8,68 +8,188 @@
 <style>
 body{
     margin:0;
-    background:#000;
+    background:black;
     font-family:Arial, sans-serif;
     text-align:center;
     color:white;
 }
 
-/* RGB Animation */
-@keyframes rgb {
+/* ===== ROTATING RGB BORDER ===== */
+.profile-box{
+    position:relative;
+    margin:40px auto;
+    width:90%;
+    max-width:400px;
+    border-radius:25px;
+    padding:3px;
+    overflow:hidden;
+}
+
+/* Rotating RGB Layer */
+.profile-box::before{
+    content:"";
+    position:absolute;
+    inset:-50%;
+    background:conic-gradient(
+        red, yellow, lime, cyan, blue, magenta, red
+    );
+    animation:spin 4s linear infinite;
+    z-index:0;
+}
+
+/* Inner Mask */
+.profile-box::after{
+    content:"";
+    position:absolute;
+    inset:3px;
+    background:#111;
+    border-radius:22px;
+    z-index:1;
+}
+
+/* Profile Content */
+.profile-content{
+    position:relative;
+    padding:25px;
+    z-index:2;
+}
+
+@keyframes spin{
+    100%{ transform:rotate(360deg); }
+}
+
+/* ===== HUD RGB GLOW ===== */
+@keyframes rgbGlow {
     0%{border-color:red; box-shadow:0 0 20px red;}
     33%{border-color:lime; box-shadow:0 0 20px lime;}
     66%{border-color:blue; box-shadow:0 0 20px blue;}
     100%{border-color:red; box-shadow:0 0 20px red;}
 }
 
-.header{
-    padding:20px;
-    font-size:28px;
-    font-weight:bold;
-    background:linear-gradient(90deg, red, blue, lime);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-}
-
-.profile-box{
-    margin:50px auto;
+.hud-box{
+    margin:40px auto;
     width:90%;
     max-width:400px;
     background:#111;
-    padding:30px;
-    border-radius:15px;
+    padding:25px;
+    border-radius:20px;
     border:3px solid red;
-    animation:rgb 3s infinite linear;
+    animation:rgbGlow 4s infinite linear;
 }
 
-.profile-box h2{
-    margin-bottom:20px;
+.green-animate{
+    animation:greenFlash 0.8s ease;
+}
+
+@keyframes greenFlash {
+    0%{box-shadow:0 0 0px lime;}
+    50%{box-shadow:0 0 50px lime;}
+    100%{box-shadow:0 0 0px lime;}
 }
 
 .info{
     margin:15px 0;
     padding:12px;
     background:#222;
-    border-radius:10px;
+    border-radius:12px;
     font-size:18px;
+    word-break:break-all;
+}
+
+button{
+    margin-top:15px;
+    padding:10px 20px;
+    font-size:16px;
+    background:cyan;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+button:active{
+    transform:scale(0.95);
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-FREE FIRE MAX
-</div>
-
+<!-- PROFILE BOX -->
 <div class="profile-box">
-<h2>PROFILE</h2>
-
-<div class="info"><b>NAME:</b> ᏳꫝɭꫝӾƳ-Ɓoყ+3</div>
-<div class="info"><b>ID:</b> 7813244621</div>
-<div class="info"><b>LEVEL:</b> 66</div>
-
+  <div class="profile-content">
+    <h2>PROFILE</h2>
+    <div class="info"><b>NAME:</b> ᏳꫝɭꫝӾƳ-Ɓoყ+3</div>
+    <div class="info"><b>ID:</b> 7813244621</div>
+    <div class="info"><b>LEVEL:</b> 66</div>
+  </div>
 </div>
+
+<!-- HUD BOX -->
+<div class="hud-box" id="hudBox">
+<h2>FF HUD CODE</h2>
+<div class="info" id="hudCode">#FFHUDT6O3j/3ZN5JPo7eM</div>
+<button id="copyBtn" onclick="copyHUD()">COPY HUD CODE</button>
+</div>
+
+<script>
+
+/* Cute Bell Sound 🔔 */
+function playBell(){
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function bellTone(freq, duration){
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = freq;
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(
+            0.001, audioCtx.currentTime + duration
+        );
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + duration);
+    }
+
+    // Ting-Ting effect
+    bellTone(1200, 0.3);
+    setTimeout(() => bellTone(1500, 0.3), 120);
+}
+
+/* Copy Function */
+function copyHUD(){
+    const text = document.getElementById("hudCode").innerText;
+    const btn = document.getElementById("copyBtn");
+    const box = document.getElementById("hudBox");
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+
+    playBell(); // 🔔 Cute sound
+    box.classList.add("green-animate");
+
+    btn.innerText = "COPIED!";
+    btn.style.background = "lime";
+
+    setTimeout(()=>{
+        btn.innerText = "COPY HUD CODE";
+        btn.style.background = "cyan";
+        box.classList.remove("green-animate");
+    },2000);
+}
+
+</script>
 
 </body>
 </html>
